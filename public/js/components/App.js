@@ -67,7 +67,12 @@ var Home = function (_Component) {
               { htmlFor: 'price' },
               'Crypto Amount'
             ),
-            _react2.default.createElement('input', { type: 'text', name: 'amount' }),
+            _react2.default.createElement('input', {
+              type: 'text',
+              name: 'amount',
+              onChange: this.props.onInputChange,
+              value: this.props.globalState.cryptoAmount
+            }),
             _react2.default.createElement(
               'label',
               { htmlFor: 'date' },
@@ -75,12 +80,16 @@ var Home = function (_Component) {
             ),
             _react2.default.createElement(_reactDatepicker2.default, {
               selected: this.props.globalState.date,
-              onChange: this.props.handleDateChange
+              onChange: this.props.handleDateChange,
+              showMonthDropdown: true,
+              showYearDropdown: true,
+              dropdownMode: 'select',
+              locale: 'en-au'
             }),
             ';',
             _react2.default.createElement(
               'button',
-              { type: 'submit' },
+              { type: 'submit', onClick: this.props.checkProfits },
               'Check Profits'
             )
           )
@@ -128,15 +137,31 @@ var Results = function (_Component) {
 
     var _this = _possibleConstructorReturn(this, (Results.__proto__ || Object.getPrototypeOf(Results)).call(this));
 
-    _this.state = {
-      name: 'Joe'
-    };
+    _this.state = {};
+    _this.checkGains = _this.checkGains.bind(_this);
     return _this;
   }
 
   _createClass(Results, [{
+    key: 'checkGains',
+    value: function checkGains() {
+      var percent = this.props.globalState.totalStatus.percent;
+
+      if (this.props.globalState.status == 'profit') {
+        return 'You made a ' + percent + '% profit';
+      } else {
+        return 'You made a ' + percent + '% loss';
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
+      // destructure object for easy access to props
+      var _props$globalState$to = this.props.globalState.totalStatus,
+          newCostPrice = _props$globalState$to.newCostPrice,
+          newSellingPrice = _props$globalState$to.newSellingPrice,
+          percent = _props$globalState$to.percent;
+
       return _react2.default.createElement(
         'section',
         { id: 'results' },
@@ -154,22 +179,31 @@ var Results = function (_Component) {
             _react2.default.createElement(
               'h3',
               null,
-              'Your $1200 investment is now '
+              'Your $',
+              newCostPrice,
+              ' AUD investment is now'
             ),
             _react2.default.createElement(
               'h1',
               null,
-              '$7300'
+              '$',
+              newSellingPrice,
+              ' AUD'
             ),
             _react2.default.createElement(
               'h4',
               null,
-              'You made 400% profit'
+              this.checkGains()
             ),
             _react2.default.createElement(
               'a',
               { href: '#', className: 'main-btn active' },
               'Create account to keep track of all your records'
+            ),
+            _react2.default.createElement(
+              'a',
+              { href: '#', className: 'main-btn', onClick: this.props.goBack },
+              'Or Check Another Transaction'
             )
           ),
           _react2.default.createElement(
@@ -244,15 +278,39 @@ var App = function (_Component) {
     _this.state = {
       location: 'home',
       date: (0, _moment2.default)(),
-      data: ''
+      data: '',
+      btcToday: '',
+      cryptoAmount: 1,
+      status: '',
+      totalStatus: ''
     };
     _this.routingSystem = _this.routingSystem.bind(_this);
     _this.handleDateChange = _this.handleDateChange.bind(_this);
-    _this.apiCall = _this.apiCall.bind(_this);
+    _this.checkProfits = _this.checkProfits.bind(_this);
+    _this.onInputChange = _this.onInputChange.bind(_this);
+    _this.goBack = _this.goBack.bind(_this);
     return _this;
   }
 
+  // call API as soon as component renders
+
+
   _createClass(App, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      var self = this;
+      _axios2.default.get('https://min-api.cryptocompare.com/data/pricehistorical?fsym=BTC&tsyms=BTC,USD,AUD&ts=' + (0, _moment2.default)().unix() + '&extraParams=crypto_profits').then(function (response) {
+        //console.log(response.data.BTC);
+        self.setState({
+          btcToday: response.data.BTC
+        }, function () {
+          return console.log(self.state);
+        });
+      }).catch(function (error) {
+        console.log(error);
+      });
+    }
+  }, {
     key: 'handleDateChange',
     value: function handleDateChange(date) {
       var _this2 = this;
@@ -264,19 +322,91 @@ var App = function (_Component) {
       });
     }
   }, {
-    key: 'apiCall',
-    value: function apiCall() {
+    key: 'onInputChange',
+    value: function onInputChange(event) {
+      this.setState({
+        cryptoAmount: event.target.value
+      });
+    }
+  }, {
+    key: 'checkProfits',
+    value: function checkProfits() {
       // to prevent conflict with this
       var self = this;
-      _axios2.default.get('https://min-api.cryptocompare.com/data/pricehistorical?fsym=BTC&tsyms=BTC,USD,EUR&ts=1514180658&extraParams=crypto_profits').then(function (response) {
+      _axios2.default.get('https://min-api.cryptocompare.com/data/pricehistorical?fsym=BTC&tsyms=BTC,USD,AUD&ts=' + this.state.date.unix() + '&extraParams=crypto_profits').then(function (response) {
         //console.log(response.data.BTC);
         self.setState({
           data: response.data.BTC
         }, function () {
-          return console.log(self.state);
+          var costPrice = self.state.data.AUD;
+          var newCostPrice = self.state.cryptoAmount * 100;
+          newCostPrice = newCostPrice * costPrice / 100;
+          var sellingPrice = self.state.btcToday.AUD;
+          var newSellingPrice = self.state.cryptoAmount * 100;
+          newSellingPrice = newSellingPrice * sellingPrice / 100;
+
+          if (newCostPrice < newSellingPrice) {
+            // Profit
+            var profit = newSellingPrice - newCostPrice;
+            var profitPercent = profit / newCostPrice * 100;
+            profitPercent = profitPercent.toFixed(2);
+            console.log(self.state.cryptoAmount + ' bitcoin, newSP: ' + newSellingPrice + ', SP: ' + sellingPrice + ', newCP: ' + newCostPrice + ', CP: ' + costPrice);
+            console.log('profit % is ' + profitPercent);
+            // set state with totals and change location
+            self.setState({
+              location: 'results',
+              status: 'profit',
+              totalStatus: {
+                newCostPrice: newCostPrice.toFixed(2),
+                costPrice: costPrice,
+                newSellingPrice: newSellingPrice.toFixed(2),
+                sellingPrice: sellingPrice,
+                percent: profitPercent
+              }
+            }, function () {
+              return console.log(self.state);
+            });
+          } else {
+            // Loss
+            var loss = newCostPrice - newSellingPrice;
+            var lossPercent = loss / newCostPrice * 100;
+            lossPercent = lossPercent.toFixed(2);
+            console.log('loss % is ' + lossPercent);
+            // set state and change location
+            self.setState({
+              location: 'results',
+              status: 'loss',
+              totalStatus: {
+                newCostPrice: newCostPrice.toFixed(2),
+                costPrice: costPrice,
+                newSellingPrice: newSellingPrice.toFixed(2),
+                sellingPrice: sellingPrice,
+                percent: lossPercent
+              }
+            }, function () {
+              return console.log(self.state);
+            });
+          }
+          console.log(self.state);
         });
       }).catch(function (error) {
         console.log(error);
+      });
+    }
+  }, {
+    key: 'goBack',
+    value: function goBack() {
+      var _this3 = this;
+
+      this.setState({
+        location: 'home',
+        date: (0, _moment2.default)(),
+        data: '',
+        cryptoAmount: 1,
+        status: '',
+        totalStatus: ''
+      }, function () {
+        return console.log('back', _this3.state);
       });
     }
   }, {
@@ -286,11 +416,13 @@ var App = function (_Component) {
         case 'home':
           return _react2.default.createElement(_Home2.default, {
             handleDateChange: this.handleDateChange,
-            globalState: this.state
+            globalState: this.state,
+            onInputChange: this.onInputChange,
+            checkProfits: this.checkProfits
           });
           break;
         case 'results':
-          return _react2.default.createElement(_Results2.default, null);
+          return _react2.default.createElement(_Results2.default, { globalState: this.state, goBack: this.goBack });
           break;
         default:
           return _react2.default.createElement(_Home2.default, null);
@@ -310,8 +442,8 @@ var App = function (_Component) {
             null,
             _react2.default.createElement(
               'div',
-              { className: 'logo', onClick: this.apiCall },
-              'Crypto Profits'
+              { className: 'logo' },
+              'Bitcoin Profits'
             ),
             _react2.default.createElement(
               'nav',
