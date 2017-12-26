@@ -138,6 +138,7 @@ var Results = function (_Component) {
 
     _this.state = {};
     _this.checkGains = _this.checkGains.bind(_this);
+    _this.newSpAnimate = _this.newSpAnimate.bind(_this);
     return _this;
   }
 
@@ -151,6 +152,39 @@ var Results = function (_Component) {
       } else {
         return 'You made a ' + percent + '% loss';
       }
+    }
+  }, {
+    key: 'newSpAnimate',
+    value: function newSpAnimate(id, start, end, duration) {
+      //console.log('component mounted');
+      var obj = document.getElementById(id);
+      var range = end - start;
+      var minTimer = 50;
+      var stepTime = Math.abs(Math.floor(duration / range));
+
+      stepTime = Math.max(stepTime, minTimer);
+      var startTime = new Date().getTime();
+      var endTime = startTime + duration;
+      var timer;
+
+      function run() {
+        var now = new Date().getTime();
+        var remaining = Math.max((endTime - now) / duration, 0);
+        var value = Math.round(end - remaining * range);
+        obj.innerHTML = value;
+        if (value == end) {
+          clearInterval(timer);
+        }
+      }
+
+      timer = setInterval(run, stepTime);
+      run();
+    }
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var newSellingPrice = this.props.globalState.totalStatus.newSellingPrice;
+      this.newSpAnimate('newSP', 100, '' + newSellingPrice, 800);
     }
   }, {
     key: 'render',
@@ -186,7 +220,7 @@ var Results = function (_Component) {
               'h1',
               null,
               '$',
-              newSellingPrice,
+              _react2.default.createElement('span', { id: 'newSP' }),
               ' AUD'
             ),
             _react2.default.createElement(
