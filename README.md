@@ -7,3 +7,7 @@ Stack: React, SASS, axios, react-datepicker, cryptocompare API
 Demo: jadlao-btcprofits.surge.sh
 
 # Preview
+
+![Alt Text](https://image.ibb.co/nNenn6/bitcoin01.jpg)
+
+![Alt Text](https://image.ibb.co/m4irEm/bitcoin02.jpg)
