@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700');
+@import url('https://fonts.googleapis.com/css?family=Maven+Pro:400,700');
 @import 'reset';
 @import 'variables';
 @import 'mixins';
@@ -8,8 +8,8 @@
 @import 'results';
 
 body {
-  font-family: 'Roboto', sans-serif;
-  background: $bluebg;
+  font-family: 'Maven Pro', sans-serif;
+  background: $grey;
 }
 
 header {
@@ -19,13 +19,13 @@ header {
   .logo {
     display: inline-block;
     float: left;
-    color: $white;
+    color: $greyFont;
   }
 
   .menu {
     display: inline-block;
     float: right;
-    color: $white;
+    color: $greyFont;
 
     a {
     }
@@ -33,16 +33,16 @@ header {
 }
 
 .main-btn {
-  color: $white;
+  color: $greyFont;
   text-decoration: none;
   display: inline-block;
   padding: 10px 20px;
-  border-radius: 3px;
   border: 1px solid $blue;
   transition: all 0.3s ease-in-out;
 
   &:hover {
     background: $blue;
+    color: $lightgrey;
   }
   &.active {
     background: $blue;

@@ -11,10 +11,10 @@ export default class Home extends Component {
     return (
       <section id="home">
         <div className="container">
-          <div className="col-md-6">
+          <div className="col-xs-12 col-md-5">
             <img src="/img/bitcoin-logo.png" className="bitcoin-logo" />
           </div>
-          <div className="col-md-6">
+          <div className="transactions col-xs-12 col-md-7">
             <h2>Enter Transaction</h2>
             <label htmlFor="price">Crypto Amount</label>
             <input
@@ -31,7 +31,7 @@ export default class Home extends Component {
               showYearDropdown
               dropdownMode="select"
               locale="en-au"
-            />;
+            />
             <button type="submit" onClick={this.props.checkProfits}>
               Check Profits
             </button>

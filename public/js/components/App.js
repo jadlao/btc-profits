@@ -51,12 +51,12 @@ var Home = function (_Component) {
           { className: 'container' },
           _react2.default.createElement(
             'div',
-            { className: 'col-md-6' },
+            { className: 'col-xs-12 col-md-5' },
             _react2.default.createElement('img', { src: '/img/bitcoin-logo.png', className: 'bitcoin-logo' })
           ),
           _react2.default.createElement(
             'div',
-            { className: 'col-md-6' },
+            { className: 'transactions col-xs-12 col-md-7' },
             _react2.default.createElement(
               'h2',
               null,
@@ -86,7 +86,6 @@ var Home = function (_Component) {
               dropdownMode: 'select',
               locale: 'en-au'
             }),
-            ';',
             _react2.default.createElement(
               'button',
               { type: 'submit', onClick: this.props.checkProfits },
