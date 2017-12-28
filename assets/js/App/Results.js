@@ -43,6 +43,7 @@ export default class Results extends Component {
     run();
   }
 
+  // calls after component has finished rendering
   componentDidMount() {
     const newSellingPrice = this.props.globalState.totalStatus.newSellingPrice;
     this.newSpAnimate('newSP', 100, `${newSellingPrice}`, 800);

@@ -25,7 +25,7 @@ class App extends Component {
     this.goBack = this.goBack.bind(this);
   }
 
-  // call API as soon as component renders
+  // call API before component renders - today's BTC price
   componentWillMount() {
     var self = this;
     axios
